@@ -1,0 +1,258 @@
+# Kubernetes Deployment for ML Inference Service
+# Metascan AI Integration - ML Model Serving
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: metascan-ml
+  labels:
+    app: metascan
+    component: ml-inference
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ml-config
+  namespace: metascan-ml
+data:
+  MODEL_PATH: "/models/vulnerability-detector"
+  BATCH_SIZE: "32"
+  MAX_WORKERS: "4"
+  LOG_LEVEL: "INFO"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ml-secrets
+  namespace: metascan-ml
+type: Opaque
+stringData:
+  MLFLOW_TRACKING_URI: "http://mlflow-server:5000"
+  MODEL_REGISTRY_URL: "s3://metascan-models/registry"
+  AWS_ACCESS_KEY_ID: "your-access-key"
+  AWS_SECRET_ACCESS_KEY: "your-secret-key"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-inference
+  namespace: metascan-ml
+  labels:
+    app: metascan
+    component: ml-inference
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: metascan
+      component: ml-inference
+  template:
+    metadata:
+      labels:
+        app: metascan
+        component: ml-inference
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: ml-inference-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      
+      initContainers:
+      - name: model-downloader
+        image: amazon/aws-cli:latest
+        command:
+        - sh
+        - -c
+        - |
+          aws s3 sync s3://metascan-models/latest /models/
+        volumeMounts:
+        - name: model-storage
+          mountPath: /models
+        envFrom:
+        - secretRef:
+            name: ml-secrets
+      
+      containers:
+      - name: inference-server
+        image: teketkom/metascan-ml-inference:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        - containerPort: 8001
+          name: grpc
+          protocol: TCP
+        
+        envFrom:
+        - configMapRef:
+            name: ml-config
+        - secretRef:
+            name: ml-secrets
+        
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "2Gi"
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+            nvidia.com/gpu: "1"  # Опционально: GPU для ускорения
+        
+        volumeMounts:
+        - name: model-storage
+          mountPath: /models
+          readOnly: true
+        - name: cache
+          mountPath: /tmp/cache
+        
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+        
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: 8000
+          initialDelaySeconds: 0
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+      
+      volumes:
+      - name: model-storage
+        emptyDir:
+          sizeLimit: 10Gi
+      - name: cache
+        emptyDir:
+          sizeLimit: 5Gi
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: component
+                  operator: In
+                  values:
+                  - ml-inference
+              topologyKey: kubernetes.io/hostname
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-inference
+  namespace: metascan-ml
+  labels:
+    app: metascan
+    component: ml-inference
+spec:
+  type: ClusterIP
+  selector:
+    app: metascan
+    component: ml-inference
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  - name: grpc
+    port: 8001
+    targetPort: 8001
+    protocol: TCP
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ml-inference-hpa
+  namespace: metascan-ml
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ml-inference
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: "1000"
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+      selectPolicy: Max
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ml-inference-sa
+  namespace: metascan-ml
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ml-inference-pdb
+  namespace: metascan-ml
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: metascan
+      component: ml-inference
