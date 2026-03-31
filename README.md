@@ -1,224 +1,297 @@
 # Metascan AI Integration Research
+## Экспертный технический анализ и план внедрения AI/ML инструментов
 
-## 🎯 Общий обзор проекта
-
-Экспертный технический анализ платформы **Metascan** (ООО "Метаскан") — облачного сканера уязвимостей с фокусом на:
-
-- 🤖 Архитектуру и внедрение ИИ
-- 🛠 SRE-инфраструктуру для скалирования
-- 📊 Оценку Big Data для обучения ML-моделей
-- 🔧 Автоматизацию через Lua-скрипты
-- 💰 Коммерческую модель монетизации
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Kubernetes](https://img.shields.io/badge/kubernetes-1.24+-326CE5.svg)](https://kubernetes.io/)
 
 ---
 
-## 📋 Структура репозитория
+## 📋 Оглавление
+
+- [Обзор проекта](#обзор-проекта)
+- [Структура репозитория](#структура-репозитория)
+- [Ключевые компоненты](#ключевые-компоненты)
+- [Технический стек](#технический-стек)
+- [Быстрый старт](#быстрый-старт)
+- [Авторы](#авторы)
+
+---
+
+## 🎯 Обзор проекта
+
+Данный репозиторий содержит комплексный экспертный анализ платформы **Metascan** (https://metascan.ru) с позиций:
+- **SRE (Site Reliability Engineering)** – оценка инфраструктурных требований
+- **AI/ML Architecture** – проектирование архитектуры внедрения искусственного интеллекта
+- **CTO Vision** – стратегический технический план развития и коммерциализации
+
+### Основные задачи исследования:
+
+1. **Глубокий анализ бизнес-модели и продукта Metascan**
+2. **Оценка потенциала больших данных для обучения AI/ML моделей**
+3. **Проектирование оптимальной SRE-инфраструктуры**
+4. **Разработка плана внедрения AI инструментов**
+5. **Автоматизация генерации Lua-скриптов для Nmap NSE**
+6. **Создание коммерческих ML-продуктов на базе данных уязвимостей**
+
+---
+
+## 📁 Структура репозитория
 
 ```
 metascan-ai-integration-research/
-├── docs/
-│   ├── 01-business-analysis.md          # Бизнес-анализ и устойчивость модели
-│   ├── 02-technical-architecture.md     # Техническая архитектура Metascan
-│   ├── 03-big-data-assessment.md        # Оценка Big Data для AI
-│   ├── 04-sre-infrastructure.md         # SRE инфраструктура
-│   ├── 05-ai-architecture.md            # Архитектура AI-систем
-│   ├── 06-ai-implementation-plan.md     # План внедрения AI
-│   ├── 07-lua-automation.md             # Lua-автоматизация
-│   └── 08-roi-business-model.md         # ROI и бизнес-модель
-├── code/
-│   ├── lua-scripts/
-│   │   ├── nse/                         # Nmap NSE скрипты
-│   │   ├── nuclei-templates/            # Nuclei YAML templates
-│   │   └── generators/                  # AI-генераторы Lua
-│   ├── terraform/
-│   │   ├── yandex-cloud/               # Yandex Cloud IaC
-│   │   └── k8s-manifests/              # Kubernetes манифесты
-│   ├── python/
-│   │   ├── ml-models/                   # ML-модели
-│   │   ├── data-pipeline/               # ETL пайплайны
-│   │   └── api-integrations/            # API интеграции
-│   └── go/
-│       └── scanner-modules/             # Go-модули сканеров
-├── diagrams/
-│   ├── architecture/
-│   ├── data-flow/
-│   └── deployment/
-├── presentations/
-│   └── executive-summary.md
-└── README.md
+│
+├── docs/                           # Документация
+│   ├── technical-analysis.md       # Технический анализ платформы
+│   ├── business-model.md           # Анализ бизнес-модели
+│   ├── data-value-assessment.md    # Оценка коммерческой ценности данных
+│   ├── sre-infrastructure.md       # SRE инфраструктурный план
+│   └── ai-implementation-plan.md   # План внедрения AI
+│
+├── code/                           # Исходный код
+│   ├── lua-generators/             # Генераторы Lua NSE скриптов
+│   │   ├── ai_nse_generator.py     # AI-powered генератор NSE
+│   │   ├── templates/              # Шаблоны Lua скриптов
+│   │   └── examples/               # Примеры готовых скриптов
+│   │
+│   ├── ml-pipeline/                # ML пайплайн
+│   │   ├── data_preprocessing.py   # Препроцессинг данных
+│   │   ├── model_training.py       # Обучение моделей
+│   │   └── inference_api.py        # API для инференса
+│   │
+│   └── infrastructure/             # IaC код
+│       ├── terraform/              # Terraform манифесты
+│       ├── kubernetes/             # K8s манифесты
+│       └── ansible/                # Ansible плейбуки
+│
+├── diagrams/                       # Архитектурные диаграммы
+│   ├── architecture-overview.svg   # Общая архитектура
+│   ├── data-flow.svg              # Потоки данных
+│   ├── ml-pipeline.svg            # ML пайплайн
+│   └── infrastructure.svg         # Инфраструктура
+│
+├── tables/                         # Таблицы и данные
+│   ├── infrastructure-stack.xlsx   # Инфраструктурный стек
+│   ├── ml-components.xlsx         # ML компоненты
+│   └── implementation-roadmap.xlsx # Roadmap внедрения
+│
+├── presentations/                  # Презентации
+│   └── ai-integration-deck.html   # Основная презентация
+│
+└── tests/                         # Тесты
+    ├── unit/                      # Unit тесты
+    └── integration/               # Интеграционные тесты
 ```
 
 ---
 
-## 🚀 Ключевые находки
+## 🔑 Ключевые компоненты
 
-### 🏭 Бизнес-модель Metascan
+### 1. Анализ платформы Metascan
 
-- **Модель**: SaaS (облачный сервис)
-- **Клиенты**: МТС, Wildberries, РСХБ, Медси, Ренессанс Страхование
-- **Инфраструктура**: 300+ сканирующих серверов в Yandex Cloud
-- **Масштаб**: 500,000+ доменов/IP ежедневно
-- **Скорость**: Гарантия сканирования за 8 часов
-- **Движки**: 29 специализированных модулей (включая ZAP, nuclei, nmap, amass)
+**Продукт:** Облачный SaaS-сканер уязвимостей
 
-### 📊 Big Data потенциал
+**Ключевые характеристики:**
+- 🖥️ **300+ сканирующих серверов**
+- 🌐 **500,000+ доменов/IP ежедневно**
+- 🔧 **29 движков обнаружения уязвимостей**
+- 📊 **5 механизмов обнаружения субдоменов**
+- 🔒 **Полное покрытие портов 0-65535**
+- 🇷🇺 **Реестр российского ПО №19437**
 
-**Ежедневно генерируемые данные**:
-- 500K+ результатов сканирования
-- 50-100 новых CVE ежедневно 
-- 300+ МБ структурированных данных
-- **Годовой объем**: ~100 ТБ высококачественных labeled данных
+### 2. Big Data потенциал
 
-**Коммерческая ценность**: $500K - $2M/год (лицензирование датасетов)
+**Источники данных:**
+- Сетевые логи сканирований (петабайтные объемы)
+- CVE/уязвимости с временными метками
+- Метаданные доменов и сертификатов
+- Результаты пентестов и PoC
+- Threat Intelligence feeds
 
----
+**Коммерческая ценность:**
+- 💰 **Датасеты для обучения AI/ML моделей** (Zero-Day detection, Threat Intelligence)
+- 📈 **Аналитические продукты B2B/B2G** (отчёты, прогнозы)
+- 🤖 **AI-as-a-Service** (автоматизация SOC, SIEM интеграции)
 
-## 🤖 AI внедрение
+### 3. SRE Инфраструктурный стек
 
-### Приоритетные направления
+#### Минимальный стек:
+- **Оркестрация:** Docker Compose
+- **Балансировка:** Nginx + HAProxy
+- **БД:** PostgreSQL + Redis
+- **CI/CD:** GitHub Actions
+- **Мониторинг:** Prometheus + Grafana
 
-1. **Автоматическая классификация уязвимостей** (FP редукция -70%)
-2. **Предиктивная приоритетизация рисков** (CVSS + context)
-3. **Генерация PoC-скриптов** (Lua/Python)
-4. **NLP для анализа отчетов** 
-5. **Zero-day детекция** (аномалии)
+#### Оптимальный стек:
+- **Оркестрация:** Kubernetes + Helm + Operators
+- **Service Mesh:** Istio / Linkerd
+- **Хранилище:** ClickHouse, OpenSearch, MinIO (S3-compatible)
+- **ML Platform:** Kubeflow / MLflow + SageMaker
+- **Мониторинг:** VictoriaMetrics + Loki + Tempo
+- **Security:** Falco, OPA, Trivy, Crowdsec
+- **IaC:** Terraform + Ansible + Crossplane
 
-### Tech Stack
+### 4. AI/ML Architecture
 
-- **ML Frameworks**: PyTorch, TensorFlow, scikit-learn
-- **LLM**: YandexGPT, LLaMa 3, CodeLLaMa
-- **Vector DB**: Milvus, Qdrant
-- **Feature Store**: Feast
-- **MLOps**: MLflow, Kubeflow, DVC
+**ML Pipeline компоненты:**
 
----
+```
+Data Ingestion → Preprocessing → Feature Engineering → Model Training
+       ↓              ↓                   ↓                    ↓
+   (Kafka)      (Spark/Dask)      (Feature Store)      (Kubeflow)
+       ↓              ↓                   ↓                    ↓
+  Model Registry → Validation → Deployment → Monitoring
+    (MLflow)      (Great Exp)   (K8s/Triton)  (Evidently)
+```
 
-## 🛠 SRE Infrastructure
+**Ключевые технологии:**
+- **Data Processing:** Apache Spark, Dask, Pandas
+- **ML Frameworks:** PyTorch, TensorFlow, XGBoost, LightGBM
+- **MLOps:** Kubeflow, MLflow, DVC, Neptune.ai
+- **Serving:** Triton Inference Server, TorchServe, ONNX Runtime
+- **Feature Store:** Feast, Tecton
 
-### Минимальный стек (MVP)
+### 5. Lua NSE AI Generator
 
-- **Compute**: 50 vCPU, 128 GB RAM
-- **Storage**: 10 TB (S3-compatible)
-- **DB**: PostgreSQL + ClickHouse
-- **Queue**: RabbitMQ / Kafka Lite
-- **K8s**: 3-node cluster
+**Автоматическая генерация Nmap NSE скриптов:**
 
-### Оптимальный стек (Production)
+```lua
+-- Пример AI-generated скрипта для CVE-2024-XXXXX
+local shortport = require "shortport"
+local http = require "http"
+local stdnse = require "stdnse"
 
-- **Compute**: 200+ vCPU, 512 GB RAM
-- **Storage**: 100 TB (Distributed)
-- **DB**: PostgreSQL HA + ClickHouse Cluster
-- **ML Infra**: GPU nodes (4x NVIDIA T4)
-- **Monitoring**: Prometheus + Grafana + Loki
-- **APM**: Jaeger, OpenTelemetry
+description = [[
+Detects vulnerability CVE-2024-XXXXX in target service.
+Generated by AI NSE Generator.
+]]
 
-**Бюджет**: $15K-20K/мес (Yandex Cloud)
+categories = {"vuln", "safe"}
 
----
+portrule = shortport.http
 
-## 🔧 Lua Automation
-
-### Сценарии автоматизации
-
-1. **NSE скрипты Nmap** - кастомные пробы
-2. **Nuclei templates** - YAML-шаблоны для CVE
-3. **AI-генерация** - LLM для создания скриптов
-4. **Авто-тестирование** - CI/CD интеграция
-
-### AI-powered Lua Generator
-
-```python
-# Пример генерации NSE скрипта
-from openai import OpenAI
-
-prompt = f"""
-Generate Nmap NSE script for detecting {vulnerability_type}
-CVE: {cve_id}
-Target: {service_info}
-"""
-
-script = llm.generate(prompt, temperature=0.3)
-validate_and_save(script, f"{cve_id}.nse")
+action = function(host, port)
+  local response = http.get(host, port, "/vulnerable-endpoint")
+  if response.status == 200 and string.match(response.body, "vulnerable_pattern") then
+    return "VULNERABLE: CVE-2024-XXXXX detected!"
+  end
+  return "Not vulnerable"
+end
 ```
 
 ---
 
-## 📈 ROI прогноз
+## 🛠️ Технический стек
 
-| Метрика | До AI | После AI | Улучшение |
-|---------|-------|-----------|------------|
-| False Positives | 35% | 10% | **-71%** |
-| Время анализа | 45 мин | 5 мин | **-89%** |
-| Генерация PoC | Ручная 4ч | Авто 10мин | **-96%** |
-| Операционные затраты | $50K/мес | $35K/мес | **-30%** |
-| Дополнительный доход | - | $500K/год | **+∞** |
+### Infrastructure
+- **Container Orchestration:** Kubernetes 1.24+, Helm 3+
+- **Service Mesh:** Istio 1.18+
+- **Storage:** MinIO, ClickHouse, PostgreSQL 15+
+- **Message Queue:** Apache Kafka, NATS
 
-**Payback period**: 8-12 месяцев
+### ML/AI
+- **Python:** 3.8+
+- **PyTorch:** 2.0+
+- **Transformers:** Hugging Face 4.30+
+- **MLOps:** Kubeflow 1.7+, MLflow 2.5+
 
----
+### Security
+- **Scanning:** Trivy, Grype, Clair
+- **Runtime Security:** Falco, Tracee
+- **Policy Engine:** OPA (Open Policy Agent)
 
-## 📖 Документация
-
-Подробные документы доступны в директории [`docs/`](docs/):
-
-1. [🏭 Бизнес-анализ](docs/01-business-analysis.md)
-2. [🏗 Техническая архитектура](docs/02-technical-architecture.md)
-3. [📊 Big Data оценка](docs/03-big-data-assessment.md)
-4. [🛠 SRE инфраструктура](docs/04-sre-infrastructure.md)
-5. [🤖 AI архитектура](docs/05-ai-architecture.md)
-6. [📅 План внедрения](docs/06-ai-implementation-plan.md)
-7. [🔧 Lua автоматизация](docs/07-lua-automation.md)
-8. [💰 ROI & бизнес-модель](docs/08-roi-business-model.md)
+### Monitoring
+- **Metrics:** Prometheus, VictoriaMetrics
+- **Logs:** Loki, ElasticSearch
+- **Tracing:** Tempo, Jaeger
+- **Dashboards:** Grafana
 
 ---
 
 ## 🚀 Быстрый старт
 
-### Клонирование репозитория
+### Предварительные требования
 
 ```bash
-git clone https://github.com/Teketkom/metascan-ai-integration-research.git
-cd metascan-ai-integration-research
+# Установка зависимостей
+python3 -m pip install -r requirements.txt
+
+# Настройка Kubernetes кластера (для локальной разработки)
+minikube start --cpus=4 --memory=8192
+
+# Установка Kubeflow
+kfctl apply -f kubeflow-config.yaml
 ```
 
-### Установка зависимостей
+### Запуск AI NSE Generator
 
 ```bash
-# Python dependencies
-pip install -r requirements.txt
-
-# Terraform init
-cd code/terraform/yandex-cloud
-terraform init
+cd code/lua-generators
+python ai_nse_generator.py --cve CVE-2024-1234 --output generated_script.nse
 ```
 
-### Запуск примеров
+### Запуск ML Pipeline
 
 ```bash
-# Генерация Lua-скрипта с помощью AI
-python code/python/ml-models/lua_generator.py --cve CVE-2024-12345
-
-# Развертывание инфраструктуры
-terraform apply -auto-approve
+cd code/ml-pipeline
+python model_training.py --config configs/vulnerability_detection.yaml
 ```
 
 ---
 
-## 👥 Команда и контакты
+## 📊 Результаты и метрики
 
-**Автор анализа**: Dmitriy Shalimov  
-**Роль**: Project Manager / Pentester / AI & SOC Expert  
-**GitHub**: [@Teketkom](https://github.com/Teketkom)  
-**LinkedIn**: [dmitriy-shalimov](https://www.linkedin.com/in/dmitriy-shalimov-7a2a9578/)
+### Оценка ROI внедрения AI:
+
+| Метрика | До внедрения | После внедрения | Улучшение |
+|---------|--------------|-----------------|------------|
+| Время анализа уязвимостей | 4-6 часов | 15-30 минут | **85-90%** |
+| False Positive Rate | 25-35% | 5-8% | **75-80%** |
+| Обнаружение Zero-Day | Manual | Automated | **∞** |
+| Стоимость пентеста | $5000/проект | $500/проект | **90%** |
+| Throughput (domains/day) | 100K | 500K+ | **400%** |
 
 ---
 
-## 📜 Лицензия
+## 📖 Документация
 
-MIT License - свободное использование с указанием авторства.
+Подробная документация доступна в директории `/docs`:
+
+- [Технический анализ платформы](docs/technical-analysis.md)
+- [Бизнес-модель и устойчивость](docs/business-model.md)
+- [Оценка ценности данных](docs/data-value-assessment.md)
+- [SRE инфраструктура](docs/sre-infrastructure.md)
+- [План внедрения AI](docs/ai-implementation-plan.md)
 
 ---
 
-## ⭐ Star History
+## 🤝 Контрибьюция
 
-Если проект полезен — поставьте ⭐ и следите за обновлениями!
+Приветствуются Pull Requests и Issues. Для крупных изменений сначала откройте Issue для обсуждения.
+
+---
+
+## 👨‍💻 Авторы
+
+**Dmitriy Shalimov**
+- Role: Project Manager / Pentester / AI & SOC Expert / SRE Architect
+- GitHub: [@Teketkom](https://github.com/Teketkom)
+
+---
+
+## 📄 Лицензия
+
+MIT License - см. [LICENSE](LICENSE)
+
+---
+
+## 🔗 Полезные ссылки
+
+- [Metascan Official](https://metascan.ru)
+- [Nmap NSE Documentation](https://nmap.org/book/nse.html)
+- [Kubeflow Documentation](https://www.kubeflow.org/docs/)
+- [MLflow Documentation](https://mlflow.org/docs/latest/index.html)
+
+---
+
+**Последнее обновление:** 26 ноября 2025
